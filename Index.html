@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Управление маржинальностью бизнеса — CFO</title>
+  <style>
+    :root{
+      --bg:#f6f8fc;
+      --card:#ffffff;
+      --text:#0b1220;
+      --muted:#51607a;
+      --line:#d9e2f2;
+      --chip:#f2f6ff;
+      --accent:#2f6df6;
+      --good:#0f8a5f;
+      --bad:#c62828;
+      --shadow: 0 8px 24px rgba(12,24,48,.08);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:linear-gradient(180deg,#fbfcff 0%, var(--bg) 60%, #f3f6fd 100%);
+      color:var(--text);
+    }
+
+    header{
+      padding:14px 18px 6px;
+      max-width:1250px;margin:0 auto;
+      display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap
+    }
+    h1{font-size:18px;margin:0;font-weight:900;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:12px;margin-top:4px;line-height:1.35}
+
+    .lang{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:7px 10px;border-radius:999px;background:var(--chip);
+      border:1px solid var(--line);color:var(--muted);font-size:12px
+    }
+    .pill strong{color:var(--text)}
+    .btn{
+      border:1px solid var(--line); background:var(--card); color:var(--text);
+      padding:8px 10px;border-radius:10px;cursor:pointer;font-weight:800;font-size:12px;
+      box-shadow: 0 2px 10px rgba(12,24,48,.04);
+    }
+    .btn.primary{background:var(--accent);border-color:transparent;color:white}
+    .btn.secondary{background:#f7f9fe}
+
+    /* Layout: равномерное заполнение, меньше места под ввод */
+    .wrap{
+      max-width:1250px;margin:0 auto;padding:10px 18px 18px;
+      display:grid;
+      grid-template-columns: 420px 1fr; /* компактная левая панель */
+      gap:12px;
+      align-items:stretch;
+    }
+    @media (max-width: 1100px){
+      .wrap{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      box-shadow: var(--shadow);
+      min-height: 100%;
+    }
+    .card h2{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:900;letter-spacing:.2px}
+
+    /* Inputs compact */
+    .inputsGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+    @media (max-width: 520px){
+      .inputsGrid{grid-template-columns:1fr}
+    }
+    label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:800}
+    input[type="number"], select{
+      width:100%;padding:9px 9px;border-radius:12px;border:1px solid var(--line);
+      background:#ffffff;color:var(--text);outline:none
+    }
+    input[type="number"]:focus, select:focus{border-color:rgba(47,109,246,.55); box-shadow:0 0 0 4px rgba(47,109,246,.12)}
+
+    .sliderBox{
+      padding:8px;border:1px solid var(--line);border-radius:14px;background:#fff
+    }
+    input[type="range"]{width:100%}
+    .kv{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:11px;margin-top:5px}
+    .small{font-size:11px;color:var(--muted);line-height:1.45}
+    .mono{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1}
+
+    .sectionSep{margin:10px 0;border-top:1px dashed rgba(81,96,122,.25)}
+
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+
+    /* Right: results + charts in 2x2 grid for even fill */
+    .rightGrid{
+      display:grid;
+      grid-template-rows: auto 1fr;
+      gap:12px;
+      height: 100%;
+    }
+    .topKpis{
+      display:grid;grid-template-columns:1fr 1fr;gap:10px
+    }
+    @media (max-width: 640px){ .topKpis{grid-template-columns:1fr} }
+
+    .kpi{border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px}
+    .kpi .t{color:var(--muted);font-size:12px;font-weight:900}
+    .kpi .v{font-size:20px;font-weight:950;margin-top:6px;letter-spacing:.2px}
+    .kpi .s{font-size:12px;margin-top:6px;color:var(--muted)}
+    .delta.good{color:var(--good);font-weight:950}
+    .delta.bad{color:var(--bad);font-weight:950}
+
+    .midGrid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:12px;
+      align-items:stretch;
+      min-height: 520px;
+    }
+    @media (max-width: 1100px){
+      .midGrid{grid-template-columns:1fr; min-height:auto;}
+    }
+
+    .chartsGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      align-items:stretch;
+    }
+    @media (max-width: 840px){
+      .chartsGrid{grid-template-columns:1fr}
+    }
+    .chartCard{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px}
+    .chartHdr{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+    .chartHdr .h{font-weight:950;font-size:12px;color:var(--muted)}
+    .chartHdr .hint{font-size:11px;color:var(--muted)}
+    canvas{width:100%;height:210px;display:block}
+    @media (max-width: 840px){ canvas{height:240px} }
+
+    .rightSideCard{border:1px solid var(--line);border-radius:14px;background:#fff;padding:12px}
+
+    .rec{display:flex;flex-direction:column;gap:10px;max-height: 520px; overflow:auto; padding-right:4px}
+    .recItem{border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px}
+    .recTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .tag{
+      font-size:11px;border:1px solid var(--line);
+      background:rgba(47,109,246,.10);color:var(--text);
+      padding:4px 8px;border-radius:999px;white-space:nowrap;font-weight:900
+    }
+    .tag.red{background:rgba(198,40,40,.08)}
+    .tag.green{background:rgba(15,138,95,.10)}
+    .recTitle{font-weight:950;font-size:13px;margin:0}
+    .recText{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+
+    footer{max-width:1250px;margin:0 auto;padding:0 18px 16px;color:var(--muted);font-size:11px}
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1 id="title">Управление маржинальностью бизнеса</h1>
+    <div class="sub" id="subtitle">Влияние НДС, налога на прибыль, инфляции и экспортных пошлин на прибыль за месяц + рекомендации CFO</div>
+  </div>
+  <div class="lang">
+    <span class="pill"><span id="langLabel">Язык</span>: <strong id="langValue">RU</strong></span>
+    <button class="btn" id="ruBtn">RU</button>
+    <button class="btn" id="enBtn">EN</button>
+    <button class="btn" id="zhBtn">中文</button>
+    <button class="btn primary" id="resetBtn">Сброс</button>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- LEFT: compact inputs -->
+  <section class="card">
+    <h2 id="inputsHdr">Параметры (компактно)</h2>
+
+    <div class="inputsGrid">
+      <div>
+        <label id="revLbl">Выручка (без НДС), ₽</label>
+        <input type="number" id="rev" value="500000000" min="0" step="1000000" />
+      </div>
+      <div>
+        <label id="cogsLbl">Себестоимость (COGS), ₽</label>
+        <input type="number" id="cogs" value="320000000" min="0" step="1000000" />
+      </div>
+
+      <div>
+        <label id="opexLbl">OPEX, ₽</label>
+        <input type="number" id="opex" value="90000000" min="0" step="1000000" />
+      </div>
+      <div>
+        <label id="exportShareLbl">Доля экспорта, %</label>
+        <input type="number" id="exportShare" value="35" min="0" max="100" step="1" />
+      </div>
+
+      <div>
+        <label id="vatBaseLbl">НДС (база), %</label>
+        <input type="number" id="vatBase" value="20" min="0" max="40" step="0.5" />
+      </div>
+      <div>
+        <label id="profitTaxBaseLbl">Налог на прибыль (база), %</label>
+        <input type="number" id="profitTaxBase" value="20" min="0" max="40" step="0.5" />
+      </div>
+
+      <div>
+        <label id="inflBaseLbl">Инфляция (текущая), %</label>
+        <input type="number" id="inflBase" value="7" min="-5" max="50" step="0.1" />
+      </div>
+      <div>
+        <label id="inflDeltaLbl">Изменение инфляции, п.п.</label>
+        <input type="number" id="inflDelta" value="0" min="-10" max="20" step="0.1" />
+      </div>
+    </div>
+
+    <div class="sectionSep"></div>
+
+    <div class="inputsGrid">
+      <div>
+        <label id="vatDeltaLbl">Δ НДС, п.п.</label>
+        <div class="sliderBox">
+          <input type="range" id="vatDelta" min="-5" max="10" value="2" />
+          <div class="kv">
+            <span id="vatDeltaLeft">Снижение</span>
+            <span class="mono"><span id="vatDeltaVal">+2</span> п.п.</span>
+            <span id="vatDeltaRight">Рост</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label id="ptDeltaLbl">Δ налога на прибыль, п.п.</label>
+        <div class="sliderBox">
+          <input type="range" id="ptDelta" min="-10" max="10" value="0" />
+          <div class="kv">
+            <span id="ptDeltaLeft">Снижение</span>
+            <span class="mono"><span id="ptDeltaVal">0</span> п.п.</span>
+            <span id="ptDeltaRight">Рост</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label id="vatPassLbl">Перенос НДС в цену, %</label>
+        <div class="sliderBox">
+          <input type="range" id="vatPass" min="0" max="100" value="60" />
+          <div class="kv"><span id="vatPassLeft">0%</span><span class="mono"><span id="vatPassVal">60</span>%</span><span id="vatPassRight">100%</span></div>
+        </div>
+        <div class="small" id="vatPassHint">Непереложенная часть НДС учитывается как давление на маржу.</div>
+      </div>
+
+      <div>
+        <label id="demandLbl">Эластичность спроса (0…2.0)</label>
+        <div class="sliderBox">
+          <input type="range" id="elasticity" min="0" max="200" value="40" />
+          <div class="kv"><span id="demandLeft">0</span><span class="mono"><span id="elasVal">0.40</span></span><span id="demandRight">2.0</span></div>
+        </div>
+        <div class="small" id="elasHint">Используется для оценки падения выручки при росте цены.</div>
+      </div>
+
+      <div>
+        <label id="dutyModeLbl">Экспортные пошлины</label>
+        <select id="dutyMode">
+          <option value="none">Нет / сняты</option>
+          <option value="on">Введены</option>
+        </select>
+      </div>
+
+      <div>
+        <label id="dutyRateLbl">Ставка пошлины, %</label>
+        <input type="number" id="dutyRate" value="5" min="0" max="30" step="0.5" />
+        <div class="small" id="dutyHint">Пошлина = прямой расход от экспортной выручки.</div>
+      </div>
+
+      <div>
+        <label id="priceCompLbl">Δ цена внутреннего рынка, %</label>
+        <input type="number" id="priceUp" value="0" min="-20" max="50" step="0.5" />
+      </div>
+
+      <div>
+        <label id="inflPassLbl">Перенос инфляции в COGS/OPEX, %</label>
+        <input type="number" id="inflPass" value="70" min="0" max="200" step="1" />
+        <div class="small" id="inflPassHint">Оценка: какая доля инфляции за месяц «прилетает» в затраты.</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn secondary" id="exportScenarioBtn">Экспорт JSON</button>
+      <button class="btn secondary" id="importScenarioBtn">Импорт JSON</button>
+      <input type="file" id="filePick" accept="application/json" style="display:none" />
+    </div>
+    <div class="small" id="ioHint">Сценарии можно сохранять и пересылать команде.</div>
+  </section>
+
+  <!-- RIGHT -->
+  <section class="card rightGrid">
+    <div>
+      <h2 id="outputsHdr">Результаты</h2>
+
+      <div class="topKpis">
+        <div class="kpi">
+          <div class="t" id="baseProfitLbl">База: прибыль после налога, ₽</div>
+          <div class="v mono" id="baseProfit">—</div>
+          <div class="s" id="baseMarginLbl">Маржа после налога</div>
+          <div class="s mono"><span id="baseMargin">—</span></div>
+        </div>
+        <div class="kpi">
+          <div class="t" id="newProfitLbl">Сценарий: прибыль после налога, ₽</div>
+          <div class="v mono" id="newProfit">—</div>
+          <div class="s" id="deltaLbl">Изменение к базе</div>
+          <div class="s mono"><span id="deltaProfit" class="delta">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="midGrid">
+      <div class="chartsGrid">
+        <div class="chartCard">
+          <div class="chartHdr">
+            <div class="h" id="chart1Title">Прибыль: база vs сценарий</div>
+            <div class="hint" id="chart1Hint">₽</div>
+          </div>
+          <canvas id="profitBar"></canvas>
+        </div>
+
+        <div class="chartCard">
+          <div class="chartHdr">
+            <div class="h" id="chart2Title">Мостик факторов</div>
+            <div class="hint" id="chart2Hint">₽</div>
+          </div>
+          <canvas id="bridgeBar"></canvas>
+        </div>
+
+        <div class="chartCard">
+          <div class="chartHdr">
+            <div class="h" id="chart3Title">Чувствительность: прибыль vs ΔНДС</div>
+            <div class="hint" id="chart3Hint">-2…+6 п.п.</div>
+          </div>
+          <canvas id="vatSensitivity"></canvas>
+        </div>
+
+        <div class="chartCard">
+          <div class="chartHdr">
+            <div class="h" id="chart4Title">Чувствительность: прибыль vs инфляция</div>
+            <div class="hint" id="chart4Hint">-2…+6 п.п.</div>
+          </div>
+          <canvas id="inflSensitivity"></canvas>
+        </div>
+      </div>
+
+      <div class="rightSideCard">
+        <h2 id="driversHdr" style="margin:0 0 10px">Драйверы и рекомендации</h2>
+
+        <div class="kpi" style="margin-bottom:10px">
+          <div class="t" id="bridgeLbl">Ключевые драйверы (оценка), ₽</div>
+          <div class="s mono" id="bridge1">—</div>
+          <div class="s mono" id="bridge2">—</div>
+          <div class="s mono" id="bridge3">—</div>
+          <div class="s mono" id="bridge4">—</div>
+          <div class="s mono" id="bridge5">—</div>
+        </div>
+
+        <div class="small" id="assumptions">
+          НДС: непереложенная часть — давление на маржу. Пошлина: прямой расход от экспортной выручки. Инфляция: увеличивает COGS/OPEX на долю переноса. Налог на прибыль: ставка от прибыли до налога (если прибыль положительная).
+        </div>
+
+        <div class="sectionSep"></div>
+
+        <div class="rec" id="recs"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div id="footerNote">
+    Упрощённый сценарный калькулятор. Для регламентной оценки учитывайте входной НДС, контракты, INCOTERMS, льготы и отраслевые исключения.
+  </div>
+</footer>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+
+  const i18n = {
+    ru: {
+      title: "Управление маржинальностью бизнеса",
+      subtitle: "Влияние НДС, налога на прибыль, инфляции и экспортных пошлин на прибыль за месяц + рекомендации CFO",
+      langLabel: "Язык",
+      reset: "Сброс",
+      inputsHdr: "Параметры (компактно)",
+      outputsHdr: "Результаты",
+      driversHdr: "Драйверы и рекомендации",
+      revLbl: "Выручка (без НДС), ₽",
+      cogsLbl: "Себестоимость (COGS), ₽",
+      opexLbl: "OPEX, ₽",
+      exportShareLbl: "Доля экспорта, %",
+      vatBaseLbl: "НДС (база), %",
+      profitTaxBaseLbl: "Налог на прибыль (база), %",
+      inflBaseLbl: "Инфляция (текущая), %",
+      inflDeltaLbl: "Изменение инфляции, п.п.",
+      vatDeltaLbl: "Δ НДС, п.п.",
+      vatDeltaLeft: "Снижение",
+      vatDeltaRight: "Рост",
+      ptDeltaLbl: "Δ налога на прибыль, п.п.",
+      ptDeltaLeft: "Снижение",
+      ptDeltaRight: "Рост",
+      vatPassLbl: "Перенос НДС в цену, %",
+      vatPassHint: "Непереложенная часть НДС учитывается как давление на маржу.",
+      demandLbl: "Эластичность спроса (0…2.0)",
+      elasHint: "Используется для оценки падения выручки при росте цены.",
+      dutyModeLbl: "Экспортные пошлины",
+      dutyNone: "Нет / сняты",
+      dutyOn: "Введены",
+      dutyRateLbl: "Ставка пошлины, %",
+      dutyHint: "Пошлина = прямой расход от экспортной выручки.",
+      priceCompLbl: "Δ цена внутреннего рынка, %",
+      inflPassLbl: "Перенос инфляции в COGS/OPEX, %",
+      inflPassHint: "Оценка: какая доля инфляции за месяц «прилетает» в затраты.",
+      exportScenarioBtn: "Экспорт JSON",
+      importScenarioBtn: "Импорт JSON",
+      ioHint: "Сценарии можно сохранять и пересылать команде.",
+      baseProfitLbl: "База: прибыль после налога, ₽",
+      baseMarginLbl: "Маржа после налога",
+      newProfitLbl: "Сценарий: прибыль после налога, ₽",
+      deltaLbl: "Изменение к базе",
+      bridgeLbl: "Ключевые драйверы (оценка), ₽",
+      chart1Title: "Прибыль: база vs сценарий",
+      chart1Hint: "₽",
+      chart2Title: "Мостик факторов",
+      chart2Hint: "₽",
+      chart3Title: "Чувствительность: прибыль vs ΔНДС",
+      chart3Hint: "-2…+6 п.п.",
+      chart4Title: "Чувствительность: прибыль vs инфляция",
+      chart4Hint: "-2…+6 п.п.",
+      footerNote: "Упрощённый сценарный калькулятор. Для регламентной оценки учитывайте входной НДС, контракты, INCOTERMS, льготы и отраслевые исключения.",
+      assumptions: "НДС: непереложенная часть — давление на маржу. Пошлина: прямой расход от экспортной выручки. Инфляция: увеличивает COGS/OPEX на долю переноса. Налог на прибыль: ставка от прибыли до налога (если прибыль положительная).",
+      recTags: { critical:"Критично", risk:"Риск", win:"Рост маржи", ops:"Операции", pricing:"Ценообразование", tax:"Налоги", export:"Экспорт", infl:"Инфляция" }
+    },
+    en: {
+      title: "Business Margin Management",
+      subtitle: "Monthly profit impact of VAT, corporate tax, inflation and export duties + CFO actions",
+      langLabel: "Language",
+      reset: "Reset",
+      inputsHdr: "Parameters (compact)",
+      outputsHdr: "Results",
+      driversHdr: "Drivers & recommendations",
+      revLbl: "Revenue (excl. VAT), ₽",
+      cogsLbl: "COGS, ₽",
+      opexLbl: "OPEX, ₽",
+      exportShareLbl: "Export share, %",
+      vatBaseLbl: "VAT (baseline), %",
+      profitTaxBaseLbl: "Corporate tax (baseline), %",
+      inflBaseLbl: "Inflation (current), %",
+      inflDeltaLbl: "Inflation change, pp",
+      vatDeltaLbl: "Δ VAT, pp",
+      vatDeltaLeft: "Decrease",
+      vatDeltaRight: "Increase",
+      ptDeltaLbl: "Δ corporate tax, pp",
+      ptDeltaLeft: "Decrease",
+      ptDeltaRight: "Increase",
+      vatPassLbl: "VAT pass-through to price, %",
+      vatPassHint: "Unrecovered VAT is treated as margin pressure.",
+      demandLbl: "Demand elasticity (0…2.0)",
+      elasHint: "Used to estimate revenue drop under price increases.",
+      dutyModeLbl: "Export duties",
+      dutyNone: "None / removed",
+      dutyOn: "Introduced",
+      dutyRateLbl: "Duty rate, %",
+      dutyHint: "Duty is modeled as a direct expense from export revenue.",
+      priceCompLbl: "Δ domestic price, %",
+      inflPassLbl: "Inflation pass-through to COGS/OPEX, %",
+      inflPassHint: "Estimate: share of inflation that materializes in costs within the month.",
+      exportScenarioBtn: "Export JSON",
+      importScenarioBtn: "Import JSON",
+      ioHint: "Scenarios can be saved and shared with the team.",
+      baseProfitLbl: "Baseline: profit after tax, ₽",
+      baseMarginLbl: "After-tax margin",
+      newProfitLbl: "Scenario: profit after tax, ₽",
+      deltaLbl: "Change vs baseline",
+      bridgeLbl: "Key drivers (estimate), ₽",
+      chart1Title: "Profit: baseline vs scenario",
+      chart1Hint: "₽",
+      chart2Title: "Drivers bridge",
+      chart2Hint: "₽",
+      chart3Title: "Sensitivity: profit vs ΔVAT",
+      chart3Hint: "-2…+6 pp",
+      chart4Title: "Sensitivity: profit vs inflation",
+      chart4Hint: "-2…+6 pp",
+      footerNote: "Simplified scenario calculator. For statutory estimates consider input VAT, contracts, INCOTERMS, reliefs and industry exceptions.",
+      assumptions: "VAT: unrecovered part treated as margin pressure. Duty: direct expense from export revenue. Inflation: increases COGS/OPEX by pass-through share. Corporate tax: applied to profit before tax if positive.",
+      recTags: { critical:"Critical", risk:"Risk", win:"Margin uplift", ops:"Operations", pricing:"Pricing", tax:"Tax", export:"Export", infl:"Inflation" }
+    },
+    zh: {
+      title: "业务毛利率管理",
+      subtitle: "增值税、企业所得税、通胀与出口关税对月度利润的影响 + CFO建议",
+      langLabel: "语言",
+      reset: "重置",
+      inputsHdr: "参数（紧凑）",
+      outputsHdr: "结果",
+      driversHdr: "驱动因素与建议",
+      revLbl: "月收入（不含增值税），₽",
+      cogsLbl: "销售成本（COGS），₽",
+      opexLbl: "运营费用（OPEX），₽",
+      exportShareLbl: "出口占比，%",
+      vatBaseLbl: "增值税（基准），%",
+      profitTaxBaseLbl: "企业所得税（基准），%",
+      inflBaseLbl: "通胀（当前），%",
+      inflDeltaLbl: "通胀变化，百分点",
+      vatDeltaLbl: "Δ 增值税，百分点",
+      vatDeltaLeft: "下降",
+      vatDeltaRight: "上升",
+      ptDeltaLbl: "Δ 企业所得税，百分点",
+      ptDeltaLeft: "下降",
+      ptDeltaRight: "上升",
+      vatPassLbl: "增值税转嫁到价格，%",
+      vatPassHint: "未能转嫁的增值税视为毛利压力。",
+      demandLbl: "需求弹性（0…2.0）",
+      elasHint: "用于估算提价导致的收入下滑。",
+      dutyModeLbl: "出口关税",
+      dutyNone: "无 / 取消",
+      dutyOn: "新增",
+      dutyRateLbl: "关税税率，%",
+      dutyHint: "关税按出口收入的直接费用计入。",
+      priceCompLbl: "Δ 国内价格，%",
+      inflPassLbl: "通胀向COGS/OPEX传导，%",
+      inflPassHint: "估计：当月通胀中有多少比例会体现在成本中。",
+      exportScenarioBtn: "导出 JSON",
+      importScenarioBtn: "导入 JSON",
+      ioHint: "情景可保存并与团队共享。",
+      baseProfitLbl: "基准：税后利润，₽",
+      baseMarginLbl: "税后利润率",
+      newProfitLbl: "情景：税后利润，₽",
+      deltaLbl: "相对基准变化",
+      bridgeLbl: "关键驱动因素（估算），₽",
+      chart1Title: "利润：基准 vs 情景",
+      chart1Hint: "₽",
+      chart2Title: "驱动因素桥图",
+      chart2Hint: "₽",
+      chart3Title: "敏感性：利润 vs Δ增值税",
+      chart3Hint: "-2…+6 个百分点",
+      chart4Title: "敏感性：利润 vs 通胀",
+      chart4Hint: "-2…+6 个百分点",
+      footerNote: "简化的情景计算器。用于管理决策；法定测算请考虑进项税、合同条款、INCOTERMS、优惠政策与行业例外。",
+      assumptions: "增值税：未转嫁部分视为毛利压力。关税：按出口收入的直接费用。通胀：按传导比例提高COGS/OPEX。所得税：若税前利润为正，则按税率计提。",
+      recTags: { critical:"关键", risk:"风险", win:"毛利提升", ops:"运营", pricing:"定价", tax:"税务", export:"出口", infl:"通胀" }
+    }
+  };
+
+  let lang = "ru";
+
+  function fmt(n){
+    if (!isFinite(n)) return "—";
+    const sign = n<0 ? "-" : "";
+    n = Math.abs(n);
+    return sign + n.toLocaleString(lang==="ru" ? "ru-RU" : (lang==="zh" ? "zh-CN" : "en-US"), {maximumFractionDigits:0});
+  }
+  function fmtPct(x){
+    if (!isFinite(x)) return "—";
+    return (x*100).toFixed(2) + "%";
+  }
+  function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
+
+  function getInputs(){
+    return {
+      rev: +$("rev").value || 0,
+      cogs: +$("cogs").value || 0,
+      opex: +$("opex").value || 0,
+      exportShare: (+$("exportShare").value || 0)/100,
+      vatBase: (+$("vatBase").value || 0)/100,
+      profitTaxBase: (+$("profitTaxBase").value || 0)/100,
+      inflBase: (+$("inflBase").value || 0)/100,
+      inflDeltaPP: (+$("inflDelta").value || 0), // pp
+      inflPass: (+$("inflPass").value || 0)/100, // share to costs
+      vatPass: (+$("vatPass").value || 0)/100,
+      elasticity: (+$("elasticity").value || 0)/100,
+      vatDeltaPP: +$("vatDelta").value || 0,
+      ptDeltaPP: +$("ptDelta").value || 0,
+      dutyMode: $("dutyMode").value,
+      dutyRate: (+$("dutyRate").value || 0)/100,
+      priceUp: (+$("priceUp").value || 0)/100
+    };
+  }
+
+  function modelWithInputs(x){
+    // Baseline profit (simplified)
+    const basePBT = x.rev - x.cogs - x.opex;
+    const baseTax = basePBT>0 ? basePBT * x.profitTaxBase : 0;
+    const basePAT = basePBT - baseTax;
+
+    // Scenario rates
+    const vatNew = clamp(x.vatBase + x.vatDeltaPP/100, 0, 1);
+    const ptNew  = clamp(x.profitTaxBase + x.ptDeltaPP/100, 0, 1);
+    const inflNew = Math.max(0, x.inflBase + x.inflDeltaPP/100); // annualized proxy, used as monthly shock via inflPass
+
+    // Revenue split
+    const exportRevBase = x.rev * x.exportShare;
+    const domRevBase = x.rev * (1 - x.exportShare);
+
+    // VAT pass-through price impact (rough)
+    const deltaVat = (vatNew - x.vatBase);
+    const priceIncFromVAT = Math.max(0, deltaVat) * x.vatPass / Math.max(0.0001, (1 + x.vatBase));
+    const demandDropFromVAT = clamp(x.elasticity * priceIncFromVAT, 0, 0.9);
+
+    // Domestic price lever + demand response
+    const domPriceChange = x.priceUp;
+    const demandDropFromDomPrice = clamp(x.elasticity * Math.max(0, domPriceChange), 0, 0.9);
+
+    // Scenario revenues
+    const domRevScenario = domRevBase * (1 + domPriceChange) * (1 - demandDropFromDomPrice) * (1 - demandDropFromVAT);
+    const exportRevScenario = exportRevBase * (1 - demandDropFromVAT);
+    const revScenario = domRevScenario + exportRevScenario;
+
+    // VAT unrecovered pressure (margin compression)
+    const vatPressure = x.rev * deltaVat * (1 - x.vatPass);
+
+    // Export duty expense
+    const dutyExpense = (x.dutyMode==="on") ? (exportRevScenario * x.dutyRate) : 0;
+
+    // Inflation cost shock:
+    // Treat inflation as cost uplift on (COGS+OPEX) by (inflNew) * inflPass * monthly_factor
+    // monthly_factor converts annual rate proxy to monthly approx: /12 (simplified)
+    const inflMonthly = inflNew / 12;
+    const inflCostUplift = (x.cogs + x.opex) * inflMonthly * x.inflPass;
+
+    // Profit before tax scenario
+    const pbtScenario = (revScenario - x.cogs - x.opex) - dutyExpense - vatPressure - inflCostUplift;
+
+    // Profit after tax scenario
+    const taxScenario = pbtScenario>0 ? pbtScenario * ptNew : 0;
+    const patScenario = pbtScenario - taxScenario;
+
+    // Margins
+    const baseMargin = x.rev>0 ? basePAT/x.rev : NaN;
+    const newMargin  = revScenario>0 ? patScenario/revScenario : NaN;
+
+    // Driver bridge (approx, before tax effects split)
+    const driverRev = (revScenario - x.rev);
+    const driverVAT = -vatPressure;
+    const driverDuty = -dutyExpense;
+    const driverInfl = -inflCostUplift;
+    const driverTax = -(pbtScenario>0 ? pbtScenario*ptNew : 0) + baseTax;
+
+    return {
+      inputs:x,
+      base:{ pbt:basePBT, tax:baseTax, pat:basePAT, margin:baseMargin, rev:x.rev },
+      scen:{ pbt:pbtScenario, tax:taxScenario, pat:patScenario, margin:newMargin, rev:revScenario, vatNew, ptNew, inflNew },
+      bridge:{ driverRev, driverVAT, driverDuty, driverInfl, driverTax }
+    };
+  }
+
+  function compute(){ return modelWithInputs(getInputs()); }
+
+  function buildRecs(m){
+    const t = i18n[lang];
+    const x = m.inputs;
+    const delta = m.scen.pat - m.base.pat;
+    const tags = t.recTags;
+
+    const recs = [];
+    const deltaVatPP = (m.scen.vatNew - x.vatBase)*100;
+    const deltaPTPP  = (m.scen.ptNew - x.profitTaxBase)*100;
+    const deltaInflPP = (m.scen.inflNew - x.inflBase)*100;
+
+    if (deltaVatPP >= 1 && x.vatPass < 0.5){
+      recs.push({
+        tag: tags.critical, tone:"red",
+        title: lang==="ru" ? "Ценообразование: закрепить перенос НДС и индексацию" :
+               lang==="zh" ? "定价：锁定增值税转嫁与指数化条款" :
+               "Pricing: secure VAT pass-through and indexation",
+        text:  lang==="ru" ? "Низкий перенос НДС. Действия: налоговая оговорка в контрактах; точечные повышения в низкоэластичных сегментах; пересмотр скидок/бонусов." :
+               lang==="zh" ? "增值税转嫁偏低。措施：合同加入税率变更条款；对低弹性细分市场定向提价；优化折扣/返利机制。" :
+               "Low pass-through. Add tax-change clauses; selective increases; redesign discounts/rebates."
+      });
+    }
+
+    if (x.elasticity >= 1.0 && (x.priceUp > 0.02 || deltaVatPP>0)){
+      recs.push({
+        tag: tags.risk, tone:"red",
+        title: lang==="ru" ? "Риск объема: использовать микс мер вместо общего повышения" :
+               lang==="zh" ? "销量风险：用组合措施替代全面提价" :
+               "Volume risk: use a mix instead of blanket price hikes",
+        text:  lang==="ru" ? "Пересегментация, ужесточение условий (предоплата/MOQ), смещение ассортимента в более маржинальные позиции." :
+               lang==="zh" ? "重新分层客户；收紧条款（预付款/最小订单量）；提升高毛利SKU占比。" :
+               "Re-segmentation; tighter terms; shift mix to higher-margin SKUs."
+      });
+    }
+
+    if (x.dutyMode==="on" && x.exportShare > 0.05 && x.dutyRate > 0){
+      recs.push({
+        tag: tags.export, tone:"red",
+        title: lang==="ru" ? "Экспортная пошлина: переложение через условия поставки и рынки" :
+               lang==="zh" ? "出口关税：通过交付条款与市场结构对冲" :
+               "Export duty: offset via delivery terms and markets",
+        text:  lang==="ru" ? "Пересмотреть INCOTERMS/распределение расходов; duty-adjustment clause; перераспределить объем по рынкам; оптимизировать логистику/FX." :
+               lang==="zh" ? "调整INCOTERMS与费用分摊；加入关税调整条款；分散市场/改流向；优化物流与汇率风险。" :
+               "Revisit INCOTERMS/cost split; duty clauses; reroute volumes; optimize logistics/FX."
+      });
+    }
+
+    if (deltaPTPP >= 1 && m.scen.pbt > 0){
+      recs.push({
+        tag: tags.tax, tone:"red",
+        title: lang==="ru" ? "Налог на прибыль: управлять базой и календарем затрат" :
+               lang==="zh" ? "所得税：管理税基与费用节奏" :
+               "Corporate tax: manage base and timing",
+        text:  lang==="ru" ? "Ускорить допустимые затраты, пересмотреть амортизацию/капзатраты, проверить льготы/вычеты, усилить комплаенс внутригрупповых услуг." :
+               lang==="zh" ? "加速合规费用确认；优化折旧与资本开支节奏；核查优惠/抵扣；加强关联交易合规。" :
+               "Accelerate eligible expenses; review depreciation/capex; check reliefs; strengthen compliance."
+      });
+    }
+
+    if (deltaInflPP >= 1 && x.inflPass >= 0.5){
+      recs.push({
+        tag: tags.infl, tone:"red",
+        title: lang==="ru" ? "Инфляция: зафиксировать цены поставщиков и пересмотреть нормативы" :
+               lang==="zh" ? "通胀：锁定采购价格并优化成本标准" :
+               "Inflation: lock supplier prices and update cost standards",
+        text:  lang==="ru" ? "Действия: индексация закупочных цен по формуле/коридору, долгосрочные контракты, альтернативные материалы, пересмотр норм расхода/энергии, регулярный re-costing." :
+               lang==="zh" ? "措施：采购价格公式/区间锁定；长期合同；替代材料；优化用量与能耗标准；定期重算成本。" :
+               "Use formula/price corridor contracts; longer terms; substitutions; update norms; periodic re-costing."
+      });
+    }
+
+    if (delta < 0){
+      recs.push({
+        tag: tags.ops, tone:"red",
+        title: lang==="ru" ? "Программа защиты маржи: COGS/OPEX + оборотный капитал" :
+               lang==="zh" ? "毛利保卫战：COGS/OPEX + 营运资本" :
+               "Margin defense: COGS/OPEX + working capital",
+        text:  lang==="ru" ? "Переговоры с поставщиками, оптимизация спецификаций/производства, заморозка низкоэффективных OPEX, снижение DSO и запасов." :
+               lang==="zh" ? "供应商谈判；优化规格与生产；冻结低ROI费用；降低应收天数与库存。" :
+               "Supplier renegotiation; spec/production optimization; freeze low-ROI OPEX; reduce DSO/inventory."
+      });
+    } else {
+      recs.push({
+        tag: tags.win, tone:"green",
+        title: lang==="ru" ? "Эффект положительный: закрепить и масштабировать" :
+               lang==="zh" ? "效果为正：固化并扩展" :
+               "Positive effect: lock and scale",
+        text:  lang==="ru" ? "Закрепить условия в договорах, масштабировать на портфель, мониторить KPI (маржа, price realization, DSO/оборачиваемость, экспорт)." :
+               lang==="zh" ? "将新条款固化到合同；推广到全产品线；监控KPI（毛利、成交价、DSO/周转、出口占比）。" :
+               "Harden terms in contracts; scale across portfolio; track KPIs."
+      });
+    }
+
+    return recs;
+  }
+
+  // ---------- Charts (pure canvas) ----------
+  function clearCanvas(ctx, w, h){ ctx.clearRect(0,0,w,h); }
+  function drawAxes(ctx, w, h, pad){
+    ctx.beginPath(); ctx.moveTo(pad, pad); ctx.lineTo(pad, h-pad); ctx.lineTo(w-pad, h-pad);
+    ctx.strokeStyle = "rgba(81,96,122,.35)"; ctx.lineWidth = 1; ctx.stroke();
+  }
+  function yScale(minV, maxV, y, h, pad){
+    const span = (maxV-minV) || 1;
+    return (h-pad) - ((y-minV)/span) * (h-2*pad);
+  }
+  function niceRange(values){
+    let min = Math.min(...values), max = Math.max(...values);
+    if (!isFinite(min) || !isFinite(max)) return {min:0,max:1};
+    if (min===max){ min -= 1; max += 1; }
+    const span = max-min;
+    const pad = span*0.12;
+    return {min:min-pad, max:max+pad};
+  }
+  function drawYTicks(ctx,w,h,pad,minV,maxV){
+    const ticks = 4;
+    ctx.strokeStyle = "rgba(81,96,122,.16)";
+    ctx.fillStyle = "rgba(81,96,122,.85)";
+    ctx.font = "10px system-ui";
+    ctx.textAlign = "right";
+    for(let i=0;i<=ticks;i++){
+      const v = minV + (maxV-minV)*(i/ticks);
+      const y = yScale(minV,maxV,v,h,pad);
+      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke();
+      ctx.fillText(formatCompact(v), pad-6, y+3);
+    }
+  }
+  function drawBars(ctx, w, h, labels, values){
+    const pad = 28;
+    clearCanvas(ctx,w,h); drawAxes(ctx,w,h,pad);
+    const r = niceRange([0, ...values]);
+    const barW = (w - 2*pad) / Math.max(1, labels.length) * 0.55;
+    const gap = (w - 2*pad) / Math.max(1, labels.length);
+
+    values.forEach((v,i)=>{
+      const x = pad + gap*i + (gap-barW)/2;
+      const y0 = yScale(r.min, r.max, 0, h, pad);
+      const y1 = yScale(r.min, r.max, v, h, pad);
+      const top = Math.min(y0,y1);
+      const bh = Math.abs(y1-y0);
+
+      ctx.fillStyle = v>=0 ? "rgba(47,109,246,.22)" : "rgba(198,40,40,.14)";
+      ctx.fillRect(x, top, barW, bh);
+      ctx.strokeStyle = v>=0 ? "rgba(47,109,246,.55)" : "rgba(198,40,40,.35)";
+      ctx.strokeRect(x, top, barW, bh);
+
+      ctx.fillStyle = "rgba(81,96,122,.95)";
+      ctx.font = "11px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText(labels[i], x+barW/2, h-10);
+
+      ctx.fillStyle = "rgba(11,18,32,.95)";
+      ctx.font = "11px system-ui";
+      ctx.fillText(formatCompact(v), x+barW/2, top-6);
+    });
+
+    drawYTicks(ctx,w,h,pad,r.min,r.max);
+  }
+  function drawBridge(ctx,w,h,items){
+    const pad=28;
+    clearCanvas(ctx,w,h); drawAxes(ctx,w,h,pad);
+
+    const cum=[0];
+    items.forEach(it=> cum.push(cum[cum.length-1]+it.value));
+    const all=[0];
+    for(let i=0;i<items.length;i++){ all.push(cum[i],cum[i+1]); }
+    const r=niceRange(all);
+    drawYTicks(ctx,w,h,pad,r.min,r.max);
+
+    const n=items.length;
+    const gap=(w-2*pad)/Math.max(1,n);
+    const barW=gap*0.62;
+
+    items.forEach((it,i)=>{
+      const x = pad + gap*i + (gap-barW)/2;
+      const yStart = yScale(r.min,r.max,cum[i],h,pad);
+      const yEnd   = yScale(r.min,r.max,cum[i+1],h,pad);
+      const top = Math.min(yStart,yEnd);
+      const bh = Math.abs(yEnd-yStart);
+
+      ctx.fillStyle = it.value>=0 ? "rgba(15,138,95,.16)" : "rgba(198,40,40,.12)";
+      ctx.fillRect(x, top, barW, bh);
+      ctx.strokeStyle = it.value>=0 ? "rgba(15,138,95,.38)" : "rgba(198,40,40,.30)";
+      ctx.strokeRect(x, top, barW, bh);
+
+      if (i < n-1){
+        ctx.strokeStyle = "rgba(81,96,122,.35)";
+        ctx.beginPath();
+        ctx.moveTo(x+barW, yEnd);
+        ctx.lineTo(pad + gap*(i+1) + (gap-barW)/2, yEnd);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = "rgba(81,96,122,.95)";
+      ctx.font = "11px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText(it.label, x+barW/2, h-10);
+
+      ctx.fillStyle = "rgba(11,18,32,.95)";
+      ctx.font = "11px system-ui";
+      ctx.fillText((it.value>=0?"+":"") + formatCompact(it.value), x+barW/2, top-6);
+    });
+  }
+  function drawLine(ctx,w,h,labels,values){
+    const pad=28;
+    clearCanvas(ctx,w,h); drawAxes(ctx,w,h,pad);
+    const r=niceRange(values);
+    drawYTicks(ctx,w,h,pad,r.min,r.max);
+
+    const n=values.length;
+    const x0=pad, x1=w-pad;
+    const step=(x1-x0)/Math.max(1,n-1);
+
+    ctx.strokeStyle="rgba(47,109,246,.70)";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    values.forEach((v,i)=>{
+      const x=x0+step*i;
+      const y=yScale(r.min,r.max,v,h,pad);
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    ctx.fillStyle="rgba(47,109,246,.45)";
+    values.forEach((v,i)=>{
+      const x=x0+step*i;
+      const y=yScale(r.min,r.max,v,h,pad);
+      ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
+    });
+
+    ctx.fillStyle="rgba(81,96,122,.95)";
+    ctx.font="11px system-ui";
+    ctx.textAlign="center";
+    const every=Math.max(1, Math.floor(n/6));
+    labels.forEach((lab,i)=>{
+      if(i%every!==0 && i!==n-1) return;
+      const x=x0+step*i;
+      ctx.fillText(lab, x, h-10);
+    });
+  }
+  function formatCompact(v){
+    if (!isFinite(v)) return "—";
+    const abs=Math.abs(v);
+    const sign=v<0?"-":"";
+    if (abs>=1e9) return sign+(abs/1e9).toFixed(2)+"B";
+    if (abs>=1e6) return sign+(abs/1e6).toFixed(1)+"M";
+    if (abs>=1e3) return sign+(abs/1e3).toFixed(1)+"K";
+    return sign+Math.round(abs).toString();
+  }
+  function setCanvasSize(canvas){
+    const rect=canvas.getBoundingClientRect();
+    const dpr=window.devicePixelRatio||1;
+    const w=Math.max(320, Math.floor(rect.width));
+    const h=Math.max(180, Math.floor(rect.height));
+    canvas.width=Math.floor(w*dpr);
+    canvas.height=Math.floor(h*dpr);
+    const ctx=canvas.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx,w,h};
+  }
+
+  function renderCharts(m){
+    // Profit bar
+    {
+      const {ctx,w,h}=setCanvasSize($("profitBar"));
+      const labels=[lang==="ru"?"База":(lang==="zh"?"基准":"Base"), lang==="ru"?"Сценарий":(lang==="zh"?"情景":"Scenario")];
+      drawBars(ctx,w,h,labels,[m.base.pat,m.scen.pat]);
+    }
+
+    // Bridge
+    {
+      const {ctx,w,h}=setCanvasSize($("bridgeBar"));
+      const items=[
+        {label: lang==="ru"?"Выручка":(lang==="zh"?"收入":"Revenue"), value:m.bridge.driverRev},
+        {label: lang==="ru"?"НДС":(lang==="zh"?"增值税":"VAT"), value:m.bridge.driverVAT},
+        {label: lang==="ru"?"Пошлина":(lang==="zh"?"关税":"Duty"), value:m.bridge.driverDuty},
+        {label: lang==="ru"?"Инфляция":(lang==="zh"?"通胀":"Infl"), value:m.bridge.driverInfl},
+        {label: lang==="ru"?"Налог":(lang==="zh"?"所得税":"Tax"), value:m.bridge.driverTax},
+      ];
+      drawBridge(ctx,w,h,items);
+    }
+
+    // VAT sensitivity (-2..+6)
+    {
+      const {ctx,w,h}=setCanvasSize($("vatSensitivity"));
+      const x=m.inputs;
+      const pts=[];
+      for(let pp=-2; pp<=6; pp++){
+        const xi=Object.assign({}, x, {vatDeltaPP:pp});
+        const mi=modelWithInputs(xi);
+        pts.push({pp, pat:mi.scen.pat});
+      }
+      drawLine(ctx,w,h,pts.map(p=>(p.pp>=0?"+":"")+p.pp), pts.map(p=>p.pat));
+    }
+
+    // Inflation sensitivity (-2..+6 pp)
+    {
+      const {ctx,w,h}=setCanvasSize($("inflSensitivity"));
+      const x=m.inputs;
+      const pts=[];
+      for(let pp=-2; pp<=6; pp++){
+        const xi=Object.assign({}, x, {inflDeltaPP:pp});
+        const mi=modelWithInputs(xi);
+        pts.push({pp, pat:mi.scen.pat});
+      }
+      drawLine(ctx,w,h,pts.map(p=>(p.pp>=0?"+":"")+p.pp), pts.map(p=>p.pat));
+    }
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  }
+
+  function render(){
+    const t=i18n[lang];
+
+    $("title").textContent=t.title;
+    $("subtitle").textContent=t.subtitle;
+    $("langLabel").textContent=t.langLabel;
+    $("resetBtn").textContent=t.reset;
+    $("inputsHdr").textContent=t.inputsHdr;
+    $("outputsHdr").textContent=t.outputsHdr;
+    $("driversHdr").textContent=t.driversHdr;
+
+    $("revLbl").textContent=t.revLbl;
+    $("cogsLbl").textContent=t.cogsLbl;
+    $("opexLbl").textContent=t.opexLbl;
+    $("exportShareLbl").textContent=t.exportShareLbl;
+    $("vatBaseLbl").textContent=t.vatBaseLbl;
+    $("profitTaxBaseLbl").textContent=t.profitTaxBaseLbl;
+
+    $("inflBaseLbl").textContent=t.inflBaseLbl;
+    $("inflDeltaLbl").textContent=t.inflDeltaLbl;
+
+    $("vatDeltaLbl").textContent=t.vatDeltaLbl;
+    $("vatDeltaLeft").textContent=t.vatDeltaLeft;
+    $("vatDeltaRight").textContent=t.vatDeltaRight;
+
+    $("ptDeltaLbl").textContent=t.ptDeltaLbl;
+    $("ptDeltaLeft").textContent=t.ptDeltaLeft;
+    $("ptDeltaRight").textContent=t.ptDeltaRight;
+
+    $("vatPassLbl").textContent=t.vatPassLbl;
+    $("vatPassHint").textContent=t.vatPassHint;
+
+    $("demandLbl").textContent=t.demandLbl;
+    $("elasHint").textContent=t.elasHint;
+
+    $("dutyModeLbl").textContent=t.dutyModeLbl;
+    const dm=$("dutyMode");
+    dm.options[0].text=t.dutyNone;
+    dm.options[1].text=t.dutyOn;
+
+    $("dutyRateLbl").textContent=t.dutyRateLbl;
+    $("dutyHint").textContent=t.dutyHint;
+
+    $("priceCompLbl").textContent=t.priceCompLbl;
+
+    $("inflPassLbl").textContent=t.inflPassLbl;
+    $("inflPassHint").textContent=t.inflPassHint;
+
+    $("exportScenarioBtn").textContent=t.exportScenarioBtn;
+    $("importScenarioBtn").textContent=t.importScenarioBtn;
+    $("ioHint").textContent=t.ioHint;
+
+    $("baseProfitLbl").textContent=t.baseProfitLbl;
+    $("baseMarginLbl").textContent=t.baseMarginLbl;
+    $("newProfitLbl").textContent=t.newProfitLbl;
+    $("deltaLbl").textContent=t.deltaLbl;
+    $("bridgeLbl").textContent=t.bridgeLbl;
+
+    $("chart1Title").textContent=t.chart1Title;
+    $("chart1Hint").textContent=t.chart1Hint;
+    $("chart2Title").textContent=t.chart2Title;
+    $("chart2Hint").textContent=t.chart2Hint;
+    $("chart3Title").textContent=t.chart3Title;
+    $("chart3Hint").textContent=t.chart3Hint;
+    $("chart4Title").textContent=t.chart4Title;
+    $("chart4Hint").textContent=t.chart4Hint;
+
+    $("footerNote").textContent=t.footerNote;
+    $("assumptions").textContent=t.assumptions;
+
+    $("langValue").textContent=lang==="zh" ? "中文" : lang.toUpperCase();
+
+    const m=compute();
+
+    $("vatPassVal").textContent=Math.round(m.inputs.vatPass*100);
+    $("elasVal").textContent=(m.inputs.elasticity).toFixed(2);
+
+    const vatDelta=+$("vatDelta").value;
+    $("vatDeltaVal").textContent=(vatDelta>=0?"+":"")+vatDelta;
+
+    const ptDelta=+$("ptDelta").value;
+    $("ptDeltaVal").textContent=(ptDelta>=0?"+":"")+ptDelta;
+
+    $("baseProfit").textContent=fmt(m.base.pat);
+    $("baseMargin").textContent=isFinite(m.base.margin) ? fmtPct(m.base.margin) : "—";
+
+    $("newProfit").textContent=fmt(m.scen.pat);
+    const dp=m.scen.pat - m.base.pat;
+    const dpEl=$("deltaProfit");
+    dpEl.textContent=(dp>=0?"+":"")+fmt(dp);
+    dpEl.className="delta " + (dp>=0 ? "good" : "bad");
+
+    const b=m.bridge;
+    const lines=[
+      {k: lang==="ru" ? "Эффект выручки" : (lang==="zh" ? "收入影响" : "Revenue effect"), v:b.driverRev},
+      {k: lang==="ru" ? "Эффект НДС" : (lang==="zh" ? "增值税影响" : "VAT effect"), v:b.driverVAT},
+      {k: lang==="ru" ? "Экспортная пошлина" : (lang==="zh" ? "关税影响" : "Duty effect"), v:b.driverDuty},
+      {k: lang==="ru" ? "Инфляция (затраты)" : (lang==="zh" ? "通胀（成本）" : "Inflation (cost)"), v:b.driverInfl},
+      {k: lang==="ru" ? "Эффект налога" : (lang==="zh" ? "所得税影响" : "Tax effect"), v:b.driverTax},
+    ];
+    ["bridge1","bridge2","bridge3","bridge4","bridge5"].forEach((id,idx)=>{
+      const s=lines[idx];
+      const sign=s.v>=0?"+":"";
+      $(id).textContent=`${s.k}: ${sign}${fmt(s.v)}`;
+    });
+
+    const recs=buildRecs(m);
+    const box=$("recs");
+    box.innerHTML="";
+    recs.forEach(r=>{
+      const el=document.createElement("div");
+      el.className="recItem";
+      el.innerHTML=`
+        <div class="recTop">
+          <div>
+            <div class="recTitle">${escapeHtml(r.title)}</div>
+            <div class="recText">${escapeHtml(r.text)}</div>
+          </div>
+          <div class="tag ${r.tone==="red"?"red":(r.tone==="green"?"green":"")}">${escapeHtml(r.tag)}</div>
+        </div>`;
+      box.appendChild(el);
+    });
+
+    const dutyOn=$("dutyMode").value==="on";
+    $("dutyRate").disabled=!dutyOn;
+    $("dutyRate").style.opacity=dutyOn?"1":"0.55";
+
+    renderCharts(m);
+  }
+
+  function reset(){
+    $("rev").value=500000000;
+    $("cogs").value=320000000;
+    $("opex").value=90000000;
+    $("exportShare").value=35;
+    $("vatBase").value=20;
+    $("profitTaxBase").value=20;
+
+    $("inflBase").value=7;
+    $("inflDelta").value=0;
+    $("inflPass").value=70;
+
+    $("vatPass").value=60;
+    $("elasticity").value=40;
+    $("vatDelta").value=2;
+    $("ptDelta").value=0;
+    $("dutyMode").value="none";
+    $("dutyRate").value=5;
+    $("priceUp").value=0;
+    render();
+  }
+
+  function exportScenario(){
+    const x=getInputs();
+    const payload={version:3, lang, timestamp:new Date().toISOString(), scenario:x};
+    const blob=new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="margin_scenario.json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  }
+
+  function importScenarioFile(file){
+    const reader=new FileReader();
+    reader.onload=()=>{
+      try{
+        const obj=JSON.parse(reader.result);
+        const s=obj.scenario || obj;
+        if (s.rev!=null) $("rev").value=s.rev;
+        if (s.cogs!=null) $("cogs").value=s.cogs;
+        if (s.opex!=null) $("opex").value=s.opex;
+        if (s.exportShare!=null) $("exportShare").value=Math.round(s.exportShare*100);
+        if (s.vatBase!=null) $("vatBase").value=s.vatBase*100;
+        if (s.profitTaxBase!=null) $("profitTaxBase").value=s.profitTaxBase*100;
+
+        if (s.inflBase!=null) $("inflBase").value=s.inflBase*100;
+        if (s.inflDeltaPP!=null) $("inflDelta").value=s.inflDeltaPP;
+        if (s.inflPass!=null) $("inflPass").value=s.inflPass*100;
+
+        if (s.vatPass!=null) $("vatPass").value=Math.round(s.vatPass*100);
+        if (s.elasticity!=null) $("elasticity").value=Math.round(s.elasticity*100);
+        if (s.vatDeltaPP!=null) $("vatDelta").value=s.vatDeltaPP;
+        if (s.ptDeltaPP!=null) $("ptDelta").value=s.ptDeltaPP;
+        if (s.dutyMode!=null) $("dutyMode").value=s.dutyMode;
+        if (s.dutyRate!=null) $("dutyRate").value=s.dutyRate*100;
+        if (s.priceUp!=null) $("priceUp").value=s.priceUp*100;
+
+        render();
+      } catch(e){
+        alert(lang==="ru" ? "Ошибка импорта JSON" : (lang==="zh" ? "JSON 导入错误" : "JSON import error"));
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // events
+  const inputsToWatch = [
+    "rev","cogs","opex","exportShare","vatBase","profitTaxBase",
+    "inflBase","inflDelta","inflPass",
+    "dutyRate","priceUp"
+  ];
+  inputsToWatch.forEach(id=> $(id).addEventListener("input", render));
+  ["vatPass","elasticity","vatDelta","ptDelta","dutyMode"].forEach(id=> $(id).addEventListener("input", render));
+
+  $("ruBtn").addEventListener("click", ()=>{ lang="ru"; render(); });
+  $("enBtn").addEventListener("click", ()=>{ lang="en"; render(); });
+  $("zhBtn").addEventListener("click", ()=>{ lang="zh"; render(); });
+  $("resetBtn").addEventListener("click", reset);
+
+  $("exportScenarioBtn").addEventListener("click", exportScenario);
+  $("importScenarioBtn").addEventListener("click", ()=>$("filePick").click());
+  $("filePick").addEventListener("change", (e)=>{
+    const f=e.target.files && e.target.files[0];
+    if (f) importScenarioFile(f);
+    e.target.value="";
+  });
+
+  let rT=null;
+  window.addEventListener("resize", ()=>{
+    clearTimeout(rT);
+    rT=setTimeout(render, 150);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
+```
